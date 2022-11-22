@@ -24,7 +24,7 @@
     </q-header>
     <div class="buffer q-mt-xl"></div>
 
-    <game-card v-if="game" :bombs="myBombs" :game="game" :wallet="wallet" @update-game="setUpGame">
+    <game-card v-if="game" :bombs="myBombs" :game="game" :wallet="wallet" @update-game="updateGame" @reset-game="resetGame">
       <bomb-container v-if="selected === 'Your Bombs'" :bombs="myBombs" :game="game" :wallet="wallet" :key="refreshController" @reload="reloadContainer"></bomb-container>
       <dashboard v-else-if="selected === 'Dashboard'" :game="game"></dashboard>
       <q-banner v-else-if="selected === 'Rules'" rounded class="bg-accent text-white text-center" id="rules">
@@ -42,7 +42,7 @@
     <div v-else class="q-pa-md q-mt-xl q-mb-none flex justify-center">
       <q-banner rounded class="bg-accent text-white">
         <div class="text-center">
-          <q-form @submit="onSubmit">
+          <q-form @submit.prevent="onSubmit">
             <q-input class="q-ma-sm bg-secondary q-pa-none rounded-borders"
                      type="number"
                      filled
@@ -320,13 +320,22 @@ export default {
     reloadContainer() {
       setTimeout(this.test,1000);
     },
-    onSubmit() {
-      // need to get address for gameId
-      this.gameAddress = "0x38C1Acc7bb26CD108E4DA34eC8CD48D05e02271f";
+    onSubmit: async function() {
+      this.game = await Game.setUpGame(this.gameId, this.RPC, this.ABI);
+      if (this.wallet.connected) {
+        this.getBombs();
+      }
+      setTimeout(await this.updateActive,30000);
     },
     async updateActive() {
       this.game.activeBombs = await Game.getActive(this.gameAddress, this.RPC, this.ABI);
     },
+    resetGame: function() {
+      this.game = null;
+    },
+    updateGame: async function() {
+      this.game = await Game.setUpGame(this.gameId, this.RPC, this.ABI);
+    }
   },
 
 
@@ -355,15 +364,15 @@ export default {
         }
       },
     },
-    gameAddress: {
+    /*gameAddress: {
       handler: async function() {
-        this.game = await Game.setUpGame(this.gameAddress, this.RPC, this.ABI);
+        this.game = await Game.setUpGame(this.gameId, this.RPC, this.ABI);
         if (this.wallet.connected) {
           this.getBombs();
         }
         setTimeout(await this.updateActive,30000);
       },
-    },
+    },*/
     myBombs: {
       handler: async function() {
         this.reloadContainer();

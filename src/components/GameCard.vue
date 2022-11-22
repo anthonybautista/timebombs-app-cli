@@ -3,6 +3,12 @@
     <q-banner rounded class="bg-accent text-white" :key="game.startTime">
 
       <div id="gameBanner" class="text-center">
+        <div id="gameIdDiv" class="full-width text-primary q-pt-sm">
+          <p>Game ID: {{game.gameId}}</p>
+        </div>
+        <div id="changeGameDiv" class="full-width text-primary">
+          <q-btn class="bg-secondary shadow-5" @click="resetGame">Change Game</q-btn>
+        </div>
         <div id="gameStartDiv" class="bg-primary q-pa-sm q-mx-xs rounded-borders shadow-5">
           <p class="q-mb-xs">Time To Start</p>
           <p v-if="gameStarted" class="q-mb-none">STARTED</p>
@@ -113,8 +119,8 @@ export default {
         this.errorMessage = e;
       }
     },
-    emitUpdate() {
-      this.$emit('update-game');
+    resetGame() {
+      this.$emit('reset-game');
     },
   },
 
@@ -139,6 +145,14 @@ export default {
   grid-template-columns: 50% 50%;
   grid-template-rows: auto;
   font-weight: bolder;
+}
+
+#gameIdDiv {
+  grid-column: 1/2;
+}
+
+#changeGameDiv {
+  grid-column: 2/3;
 }
 
 #gameStartDiv {

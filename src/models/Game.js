@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 
-function Game(nftAddress,
+function Game(gameId,
+              nftAddress,
               gameAddress,
               RPC,
               ABI,
@@ -17,6 +18,7 @@ function Game(nftAddress,
               chargeERC20,
               feeERC20,
               activeBombs) {
+    this.gameId = gameId;
     this.RPC = RPC;
     this.ABI = ABI;
     this.gameAddress = gameAddress;
@@ -37,13 +39,16 @@ function Game(nftAddress,
 
 }
 
-Game.setUpGame = async function (address, RPC, ABI) {
+Game.setUpGame = async function (gameId, RPC, ABI) {
     const t = new ethers.providers.JsonRpcProvider(RPC);
+    // TODO setup gameId => address lookup
+    let address = "0x38C1Acc7bb26CD108E4DA34eC8CD48D05e02271f";
     let gameContract = new ethers.Contract(address, ABI, t);
     let data = await gameContract.getGameInfo();
     let activeBombs = await gameContract.getActiveBombs();
 
-    return new Game(data[1],
+    return new Game(gameId,
+        data[1],
         address,
         RPC,
         ABI,
