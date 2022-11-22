@@ -1,16 +1,16 @@
 <template>
   <div class="q-pa-md q-gutter-sm q-mt-xl q-mb-none flex justify-center">
-    <q-banner rounded class="bg-accent text-white" :key="startTime">
+    <q-banner rounded class="bg-accent text-white" :key="game.startTime">
 
       <div id="gameBanner" class="text-center">
         <div id="gameStartDiv" class="bg-primary q-pa-sm q-mx-xs rounded-borders shadow-5">
           <p class="q-mb-xs">Time To Start</p>
-          <p v-if="timeRemaining > 0" class="q-mb-none">{{ days }}:{{ hours }}:{{ minutes }}:{{ seconds }}</p>
-          <p v-else class="q-mb-none">STARTED</p>
+          <p v-if="gameStarted" class="q-mb-none">STARTED</p>
+          <p v-else class="q-mb-none" :key="timeRemaining">{{ days }}:{{ hours }}:{{ minutes }}:{{ seconds }}</p>
         </div>
         <div id="bombsLeftDiv" class="bg-primary q-pa-sm q-mx-xs rounded-borders shadow-5">
           <p class="q-mb-xs">Bombs Left</p>
-          <p class="q-mb-none">{{this.remaining}}</p>
+          <p class="q-mb-none">{{remaining}}</p>
         </div>
       </div>
       <div class="bg-primary text-center q-mt-md">
@@ -35,12 +35,8 @@ export default {
   data: function() {
     return {
       errorMessage: "",
-      gameStarted: false,
-      remaining: 0,
       timeRemaining: 0,
       timed: false,
-      allowHalt: false,
-      activeBombs: [],
     }
   },
 
@@ -64,6 +60,15 @@ export default {
   },
 
   computed: {
+    remaining(){
+      return this.game.activeBombs.length;
+    },
+    gameStarted(){
+      return Date.now() > this.game.startTime;
+    },
+    allowHalt(){
+      return (this.remaining <= this.game.maxWinners) && !this.game.gameOver;
+    },
     days(){
       let days = this.timeRemaining / MS_PER_DAY;
       return this.timeRemaining > 0 ? Math.floor(days) : Math.abs(Math.ceil(days));
@@ -117,20 +122,13 @@ export default {
   },
 
   mounted: async function () {
-
-    if (Date.now() > this.game.startTime) {
+    if (Date.now() < this.game.startTime) {
       setInterval(() => {
         // update time remaining
         this.timeRemaining = this.game.startTime - Date.now();
       }, 1000);
     }
 
-    if (!this.game.gameOver) {
-      setInterval(this.updateActive, 60000);
-      this.allowHalt = this.remaining <= this.game.maxWinners;
-    }
-    this.gameStarted = Date.now() > this.game.startTime;
-    this.allowHalt = this.remaining <= this.game.maxWinners;
   },
 }
 </script>

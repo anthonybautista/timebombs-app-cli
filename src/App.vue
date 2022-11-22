@@ -61,12 +61,16 @@
 
     <div class="buffer-lg"></div>
 
-    <q-footer class="bg-primary text-white q-pt-sm">
-      <q-toolbar>
-        <q-toolbar-title>
-          <img src="@/assets/logo-large.png" class="logo"/>
-        </q-toolbar-title>
-      </q-toolbar>
+    <q-footer class="bg-none text-white q-pt-sm">
+      <q-page-sticky position="bottom-right" :offset="[18, 18]">
+        <q-btn fab icon="add" color="accent" />
+      </q-page-sticky>
+      <q-page-sticky position="bottom-left" :offset="[18, 18]">
+        <q-btn fab :icon="fabTwitter" color="accent" @click="gotoURL('https://twitter.com/timebombs_nft')"/>
+      </q-page-sticky>
+      <q-page-sticky position="bottom-left" :offset="[90, 18]">
+        <q-btn fab :icon="fabDiscord" color="accent" @click="gotoURL('https://discord.gg/ybHwNXXH6v')"/>
+      </q-page-sticky>
     </q-footer>
   </q-layout>
 </template>
@@ -76,6 +80,7 @@
 import GameCard from "@/components/GameCard";
 import BombContainer from "@/components/BombContainer";
 import Dashboard from "@/components/Dashboard";
+import { fabTwitter, fabDiscord } from '@quasar/extras/fontawesome-v6'
 import Game from "@/models/Game";
 import Bomb from "@/models/Bomb";
 import Wallet from "@/models/Wallet";
@@ -86,6 +91,13 @@ const { ethereum } = window;
 
 export default {
   name: 'LayoutDefault',
+
+  setup () {
+    return {
+      fabTwitter,
+      fabDiscord,
+    }
+  },
 
   components: {
     Dashboard,
@@ -140,6 +152,9 @@ export default {
   },
 
   methods: {
+    gotoURL: function(url) {
+      window.open(url);
+    },
     connect: async function () {
       try {
         // connect
@@ -272,11 +287,11 @@ export default {
       };
       /*const options = {
           method: 'GET',
-          url: 'https://deep-index.moralis.io/api/v2/'+this.account+'/nft',
+          url: 'https://deep-index.moralis.io/api/v2/'+this.wallet.account+'/nft',
           params: {
               chain: '0xa86a',
               format: 'decimal',
-              token_addresses: nftAddress,
+              token_addresses: this.game.nftAddress,
           },
           headers: {accept: 'application/json', 'X-API-Key': 'naggQZQHKX2aoWZNsi4ttLcGR0959aM4N93dYjrvmMDRujDY3c7ZBGhUP0Vjg1OU'}
       };*/
@@ -308,6 +323,9 @@ export default {
     onSubmit() {
       // need to get address for gameId
       this.gameAddress = "0x38C1Acc7bb26CD108E4DA34eC8CD48D05e02271f";
+    },
+    async updateActive() {
+      this.game.activeBombs = await Game.getActive(this.gameAddress, this.RPC, this.ABI);
     },
   },
 
@@ -343,6 +361,7 @@ export default {
         if (this.wallet.connected) {
           this.getBombs();
         }
+        setTimeout(await this.updateActive,30000);
       },
     },
     myBombs: {

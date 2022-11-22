@@ -15,7 +15,8 @@ function Game(nftAddress,
               paused,
               gameOver,
               chargeERC20,
-              feeERC20) {
+              feeERC20,
+              activeBombs) {
     this.RPC = RPC;
     this.ABI = ABI;
     this.gameAddress = gameAddress;
@@ -32,12 +33,15 @@ function Game(nftAddress,
     this.gameOver = gameOver;
     this.chargeERC20 = chargeERC20;
     this.feeERC20 = feeERC20;
+    this.activeBombs = activeBombs;
+
 }
 
 Game.setUpGame = async function (address, RPC, ABI) {
     const t = new ethers.providers.JsonRpcProvider(RPC);
     let gameContract = new ethers.Contract(address, ABI, t);
     let data = await gameContract.getGameInfo();
+    let activeBombs = await gameContract.getActiveBombs();
 
     return new Game(data[1],
         address,
@@ -54,7 +58,15 @@ Game.setUpGame = async function (address, RPC, ABI) {
         data[13],
         data[14],
         data[15],
-        data[16])
+        data[16],
+        activeBombs)
 }
+
+Game.getActive = async function (address, RPC, ABI) {
+    const t = new ethers.providers.JsonRpcProvider(RPC);
+    let gameContract = new ethers.Contract(address, ABI, t);
+    return await gameContract.getActiveBombs();
+}
+
 
 export default Game;

@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="smolBombContainer bg-accent flex justify-center q-ma-l q-pa-md text-center rounded-borders">
-        <q-img src="@/assets/bomb.png" class="smolBomb" v-for="bomb in activeBombs" @click="getTime(bomb)" :key="bomb">
+        <q-img src="@/assets/bomb.png" class="smolBomb" v-for="bomb in this.game.activeBombs" @click="getTime(bomb)" :key="bomb">
           <p class="text-white flex flex-center bombText">
             {{Number(bomb)}}
           </p>
@@ -26,7 +26,6 @@
 </template>
 
 <script>
-import { ethers } from "ethers";
 import Bomb from '@/models/Bomb';
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const MS_PER_HOUR = 1000 * 60 * 60;
@@ -40,7 +39,6 @@ export default {
       gameStarted: Date.now() > this.game.startTime,
       selectedBomb: null,
       bombTimer: null,
-      activeBombs: [],
     }
   },
   props: {
@@ -55,12 +53,6 @@ export default {
       this.selectedBomb = Number(id);
       let info = await Bomb.bombInfo(this.game, Number(id));
       this.bombTimer = (Number(info[1]) * 1000) - Date.now();
-    },
-    updateActive: async function() {
-      const t = new ethers.providers.JsonRpcProvider(this.game.RPC);
-      let gameContract = new ethers.Contract(this.game.gameAddress, this.game.ABI, t);
-      this.activeBombs = await gameContract.getActiveBombs();
-      return "";
     },
   },
 
@@ -85,14 +77,14 @@ export default {
 
   watch: {
     activeBombs: {
-      handler: async function(newArray) {
+      handler: function(newArray) {
         this.remaining = newArray.length;
       },
     },
   },
 
   mounted: async function () {
-    setTimeout(await this.updateActive(),2000);
+
   },
 }
 </script>
