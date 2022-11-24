@@ -63,7 +63,7 @@
 
     <q-footer class="bg-none text-white q-pt-sm">
       <q-page-sticky position="bottom-right" :offset="[18, 18]">
-        <q-btn fab icon="add" color="accent" />
+        <q-btn fab icon="add" color="accent" @click="popToast"/>
       </q-page-sticky>
       <q-page-sticky position="bottom-left" :offset="[18, 18]">
         <q-btn fab :icon="fabTwitter" color="accent" @click="gotoURL('https://twitter.com/timebombs_nft')"/>
@@ -88,14 +88,21 @@ import { ethers } from "ethers";
 import {markRaw} from "vue";
 import axios from "axios";
 const { ethereum } = window;
+import { useToast, POSITION } from "vue-toastification";
+
 
 export default {
   name: 'LayoutDefault',
 
   setup () {
+    const toast = useToast();
+    const showToast = () => toast.success("I'm a toast!");
+    toast('this is a toast.', {position: POSITION.BOTTOM_CENTER, timeout: 5000, icon: 'fas fa-bomb'});
     return {
       fabTwitter,
       fabDiscord,
+      toast,
+      showToast,
     }
   },
 
@@ -335,7 +342,12 @@ export default {
     },
     updateGame: async function() {
       this.game = await Game.setUpGame(this.gameId, this.RPC, this.ABI);
-    }
+    },
+    popToast: function() {
+      console.log("toast")
+      this.showToast();
+      this.toast('this is a toast.', {position: POSITION.BOTTOM_CENTER, timeout: 5000, icon: 'fas fa-bomb'});
+    },
   },
 
 
@@ -346,6 +358,7 @@ export default {
   //mounted:  called after the instance has been mounted,
   mounted: async function () {
     await this.checkWeb3();
+    //createToast({title: 'Bomb Detonated!', description: 'Bomb # {} went BOOM!'}, {position: 'bottom-center', type: 'danger'});
   },
 
   // watch:   calls the function if the value changes
@@ -364,6 +377,12 @@ export default {
         }
       },
     },
+    /*game: {
+      handler: function(newGame, oldGame) {
+
+      },
+      deep: true
+    },*/
     /*gameAddress: {
       handler: async function() {
         this.game = await Game.setUpGame(this.gameId, this.RPC, this.ABI);

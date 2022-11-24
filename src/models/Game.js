@@ -36,7 +36,6 @@ function Game(gameId,
     this.chargeERC20 = chargeERC20;
     this.feeERC20 = feeERC20;
     this.activeBombs = activeBombs;
-
 }
 
 Game.setUpGame = async function (gameId, RPC, ABI) {
